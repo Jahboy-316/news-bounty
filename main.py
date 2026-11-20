@@ -5,10 +5,13 @@ Pure Python 3.13 – standard library only.
 Outputs a 1024x1024 PNG (< 1 MiB) to $MAKEFUN_OUTPUT_DIR/entry.png
 (or /output/entry.png if the env-var is unset).
 
-Custom bitmap font, from-scratch PNG encoder, and hand-drawn icons
-covering verified global news stories from November 19, 2026.
-Optimized for high legibility at 300 px width with large bold headlines
-and concise, high-contrast labels.
+Front-page coverage:
+  - Date 'THURSDAY 19 NOVEMBER 2026' as the LARGEST element (Scale 6)
+  - 3 Lead stories with large bold headlines & hand-drawn icons
+  - 6 Section-tagged items (World, Markets, Tech, Science, Sport/Culture, Environment)
+  - Global wire ticker with IAEA North Korea & EU methane delay updates
+  - Custom bitmap font & pure stdlib PNG encoder
+  - Tested for high legibility at 300 px width
 """
 
 import os, struct, zlib, math
@@ -17,6 +20,7 @@ import os, struct, zlib, math
 out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
 os.makedirs(out_dir, exist_ok=True)
 OUT_PATH = os.path.join(out_dir, "entry.png")
+OUT_300_PATH = os.path.join(out_dir, "entry_300.png")
 
 W, H = 1024, 1024
 
@@ -218,83 +222,77 @@ SBG     = (253, 250, 244)
 LTAN    = (238, 230, 216)
 BROWN   = (115, 75, 45)
 
-M = 16   # side margin
+M = 14   # side margin
 
 # ───────────────────────── ICON RENDERERS ───────────────────────────────
 
 def icon_scales(cx, cy, sz):
     """Scales of Justice for ICJ Genocide ruling."""
     c = DBLUE
-    # Vertical pillar with gold finial
-    fill_rect(cx - 3, cy - sz + 10, 7, sz * 2 - 18, c)
-    draw_circle(cx, cy - sz + 8, 5, GOLD, fill=True)
-    # Tiered base
-    fill_rect(cx - sz // 2, cy + sz - 10, sz, 5, c)
-    fill_rect(cx - sz // 3, cy + sz - 15, sz * 2 // 3, 5, c)
-    # Tilted balance beam
-    bw = sz - 10
-    fill_rect(cx - bw, cy - sz + 14, bw * 2, 4, c)
-    # Left pan (raised: innocence / law)
+    fill_rect(cx - 3, cy - sz + 8, 6, sz * 2 - 14, c)
+    draw_circle(cx, cy - sz + 6, 5, GOLD, fill=True)
+    fill_rect(cx - sz // 2, cy + sz - 8, sz, 5, c)
+    fill_rect(cx - sz // 3, cy + sz - 13, sz * 2 // 3, 5, c)
+    bw = sz - 8
+    fill_rect(cx - bw, cy - sz + 12, bw * 2, 4, c)
+    # Left pan (raised)
     lx = cx - bw + 4
-    draw_line(lx, cy - sz + 16, lx - 8, cy - 6, c, 1)
-    draw_line(lx, cy - sz + 16, lx + 8, cy - 6, c, 1)
-    fill_rect(lx - 12, cy - 6, 25, 3, c)
-    for a in range(0, 181, 4):
+    draw_line(lx, cy - sz + 14, lx - 7, cy - 4, c, 1)
+    draw_line(lx, cy - sz + 14, lx + 7, cy - 4, c, 1)
+    fill_rect(lx - 10, cy - 4, 21, 3, c)
+    for a in range(0, 181, 5):
         r = math.radians(a)
-        put(int(lx + 12 * math.cos(r)), int(cy - 6 + 6 * math.sin(r)), c)
-        put(int(lx + 12 * math.cos(r)), int(cy - 6 + 6 * math.sin(r)) + 1, c)
+        put(int(lx + 10 * math.cos(r)), int(cy - 4 + 5 * math.sin(r)), c)
     # Right pan (weighted down: guilty verdict)
     rx = cx + bw - 4
-    draw_line(rx, cy - sz + 16, rx - 8, cy + 14, c, 1)
-    draw_line(rx, cy - sz + 16, rx + 8, cy + 14, c, 1)
-    fill_rect(rx - 12, cy + 14, 25, 3, c)
-    for a in range(0, 181, 4):
+    draw_line(rx, cy - sz + 14, rx - 7, cy + 12, c, 1)
+    draw_line(rx, cy - sz + 14, rx + 7, cy + 12, c, 1)
+    fill_rect(rx - 10, cy + 12, 21, 3, c)
+    for a in range(0, 181, 5):
         r = math.radians(a)
-        put(int(rx + 12 * math.cos(r)), int(cy + 14 + 6 * math.sin(r)), c)
-        put(int(rx + 12 * math.cos(r)), int(cy + 14 + 6 * math.sin(r)) + 1, c)
-    fill_rect(rx - 5, cy + 10, 11, 4, DRED)
+        put(int(rx + 10 * math.cos(r)), int(cy + 12 + 5 * math.sin(r)), c)
+    fill_rect(rx - 4, cy + 8, 9, 4, DRED)
 
 
 def icon_summit(cx, cy, sz):
-    """Trilateral Summit: USA, China, Russia flags over round table."""
+    """Trilateral Summit: USA, China, Russia flags over table."""
     c = DARK
-    fw, fh = 14, 10
+    fw, fh = 12, 8
     fy = cy - sz + 4
     slots = [cx - sz // 2 - 2, cx, cx + sz // 2 + 2]
-    # USA flag (left)
-    fill_rect(slots[0], fy, 2, fh + 16, c)
+    # USA flag
+    fill_rect(slots[0], fy, 2, fh + 14, c)
     fill_rect(slots[0] + 2, fy, fw, fh // 3, RED)
     fill_rect(slots[0] + 2, fy + fh // 3, fw, fh // 3, WHITE)
     fill_rect(slots[0] + 2, fy + 2 * (fh // 3), fw, fh // 3 + 1, RED)
     fill_rect(slots[0] + 2, fy, fw // 2, fh * 2 // 3, DBLUE)
-    # China flag (center)
-    fill_rect(slots[1], fy - 2, 2, fh + 18, c)
+    # China flag
+    fill_rect(slots[1], fy - 2, 2, fh + 16, c)
     fill_rect(slots[1] + 2, fy - 2, fw, fh, RED)
-    draw_star(slots[1] + 6, fy + 2, 3, 1, 5, GOLD)
-    # Russia flag (right)
-    fill_rect(slots[2], fy, 2, fh + 16, c)
+    draw_star(slots[1] + 5, fy + 2, 3, 1, 5, GOLD)
+    # Russia flag
+    fill_rect(slots[2], fy, 2, fh + 14, c)
     fill_rect(slots[2] + 2, fy, fw, fh // 3, WHITE)
     fill_rect(slots[2] + 2, fy + fh // 3, fw, fh // 3, BLUE)
     fill_rect(slots[2] + 2, fy + 2 * (fh // 3), fw, fh // 3 + 1, RED)
-    # Conference Table
+    # Table
     for a in range(0, 360, 2):
         r = math.radians(a)
-        for t in range(4):
-            put(int(cx + sz * 0.7 * math.cos(r)), int(cy + 12 + sz * 0.22 * math.sin(r)) + t, BROWN)
+        for t in range(3):
+            put(int(cx + sz * 0.65 * math.cos(r)), int(cy + 10 + sz * 0.2 * math.sin(r)) + t, BROWN)
     # Delegates
     for ox, suit in [(-sz // 2, DBLUE), (0, DRED), (sz // 2, DARK)]:
         hx = cx + ox
-        draw_circle(hx, cy - 2, 5, c, fill=True)
-        fill_rect(hx - 5, cy + 4, 11, 8, suit)
+        draw_circle(hx, cy - 2, 4, c, fill=True)
+        fill_rect(hx - 4, cy + 3, 9, 7, suit)
 
 
 def icon_capitol(cx, cy, sz):
     """US Capitol Dome with Columns and American Flag."""
     c = DARK
     fill_rect(cx - sz, cy + sz // 4, sz * 2, sz // 3, c)
-    num_cols = 5
-    for i in range(num_cols):
-        col_x = cx - sz + 4 + i * (sz * 2 - 8) // (num_cols - 1)
+    for i in range(5):
+        col_x = cx - sz + 4 + i * (sz * 2 - 8) // 4
         fill_rect(col_x - 1, cy - sz // 6, 3, sz // 3 + sz // 6, c)
     draw_tri(cx - sz, cy - sz // 6, cx + sz, cy - sz // 6, cx, cy - sz // 2, c)
     fill_rect(cx - sz * 2 // 5, cy - sz // 2, sz * 4 // 5, 4, c)
@@ -304,361 +302,311 @@ def icon_capitol(cx, cy, sz):
             put(int(cx + sz * 0.38 * math.cos(r)),
                 int(cy - sz // 2 - sz * 0.32 * math.sin(r)) - t, c)
     fill_rect(cx - 1, cy - sz + 2, 2, sz // 3, c)
-    fill_rect(cx + 1, cy - sz + 2, 9, 6, RED)
-    draw_line(cx + 1, cy - sz + 4, cx + 10, cy - sz + 4, WHITE, 1)
-
-
-def icon_missile(cx, cy, sz):
-    """Ballistic Missile / Defense symbol."""
-    c = DRED
-    bw = sz // 3
-    fill_rect(cx - bw, cy - sz + 12, bw * 2, sz + 2, c)
-    draw_tri(cx - bw, cy - sz + 12, cx + bw, cy - sz + 12, cx, cy - sz - 4, c)
-    fill_rect(cx - bw, cy - sz // 4, bw * 2, 3, WHITE)
-    draw_tri(cx - bw, cy + 12, cx - sz // 2 - 2, cy + 18, cx - bw, cy, c)
-    draw_tri(cx + bw, cy + 12, cx + sz // 2 + 2, cy + 18, cx + bw, cy, c)
-    draw_tri(cx - bw + 2, cy + 14, cx + bw - 2, cy + 14, cx, cy + sz + 2, ORANGE)
-    draw_tri(cx - 2, cy + 15, cx + 2, cy + 15, cx, cy + sz - 5, YELLOW)
-
-
-def icon_atom(cx, cy, sz):
-    """Nuclear / Uranium Centrifuge symbol."""
-    c = DARK
-    draw_circle(cx, cy, 5, RED, fill=True)
-    draw_circle(cx, cy, 3, YELLOW, fill=True)
-    for ang in [0, 60, 120]:
-        rot = math.radians(ang)
-        for a in range(0, 360, 2):
-            r = math.radians(a)
-            ex, ey = sz * 0.85 * math.cos(r), sz * 0.32 * math.sin(r)
-            rx = ex * math.cos(rot) - ey * math.sin(rot)
-            ry = ex * math.sin(rot) + ey * math.cos(rot)
-            px, py = int(cx + rx), int(cy + ry)
-            put(px, py, c); put(px + 1, py, c)
-        pa = [40, 160, 280][ang // 60]
-        r2 = math.radians(pa)
-        ex2, ey2 = sz * 0.85 * math.cos(r2), sz * 0.32 * math.sin(r2)
-        rx2 = ex2 * math.cos(rot) - ey2 * math.sin(rot)
-        ry2 = ex2 * math.sin(rot) + ey2 * math.cos(rot)
-        draw_circle(int(cx + rx2), int(cy + ry2), 3, DBLUE, fill=True)
-
-
-def icon_voyager(cx, cy, sz):
-    """NASA Voyager 1 Interstellar Spacecraft."""
-    c = DBLUE
-    for a in range(120, 241, 3):
-        r = math.radians(a)
-        px = int(cx - sz // 4 + sz * 0.45 * math.cos(r))
-        py = int(cy + sz * 0.75 * math.sin(r))
-        for t in range(3):
-            put(px + t, py, c)
-    draw_line(cx - sz // 3, cy, cx - sz + 4, cy, c, 2)
-    draw_circle(cx - sz + 4, cy, 3, GOLD, fill=True)
-    fill_rect(cx - sz // 6, cy - 8, sz // 3, 16, DARK)
-    draw_line(cx, cy - 8, cx + sz // 2, cy - sz + 4, c, 2)
-    fill_rect(cx + sz // 2 - 2, cy - sz + 2, 8, 5, GOLD)
-    draw_line(cx, cy + 8, cx + sz * 3 // 4, cy + sz - 2, c, 2)
-    for sx, sy in [(-sz + 2, -sz + 4), (sz - 2, -sz + 8), (-sz + 6, sz - 6), (sz - 4, sz - 8)]:
-        draw_star(cx + sx, cy + sy, 4, 1, 4, GOLD)
+    fill_rect(cx + 1, cy - sz + 2, 8, 5, RED)
+    draw_line(cx + 1, cy - sz + 4, cx + 9, cy - sz + 4, WHITE, 1)
 
 
 # ───────────────────────── SECTION DRAWING ──────────────────────────────
 
 def draw_masthead():
-    """Top newspaper banner with rich classic typography and ornamentation."""
-    fill_rect(0, 0, W, 92, NAVY)
-    fill_rect(0, 0, W, 4, GOLD)
-    fill_rect(0, 88, W, 4, GOLD)
+    """Top compact newspaper banner."""
+    fill_rect(0, 0, W, 58, NAVY)
+    fill_rect(0, 0, W, 3, GOLD)
+    fill_rect(0, 55, W, 3, GOLD)
 
-    draw_star(42, 46, 16, 6, 5, GOLD)
-    draw_star(W - 42, 46, 16, 6, 5, GOLD)
+    draw_star(36, 29, 12, 5, 5, GOLD)
+    draw_star(W - 36, 29, 12, 5, 5, GOLD)
 
-    # Main Gazette Title (scale 5 = 30px per char)
-    draw_text_c("THE WORLD GAZETTE", 14, WHITE, 5)
-
-    # Tagline
-    draw_text_c("INDEPENDENT INTERNATIONAL JOURNALISM  *  FOUNDED 1898", 58, GOLD, 2)
+    # Title at scale 4 (width = 17 * 24 = 408 px)
+    draw_text_c("THE WORLD GAZETTE", 8, WHITE, 4)
+    draw_text_c("INDEPENDENT INTERNATIONAL JOURNALISM  *  FOUNDED 1898", 38, GOLD, 1)
 
 
-def draw_date_bar():
-    """Date bar with date in LARGE bold type."""
-    y = 92
-    fill_rect(0, y, W, 50, LTAN)
+def draw_date_banner():
+    """
+    Date Banner: 'THURSDAY 19 NOVEMBER 2026' IS THE LARGEST ELEMENT ON THE FRONT PAGE.
+    Rendered at Scale 6 (42 px tall, 900 px wide) in bold dark crimson.
+    """
+    y = 58
+    fill_rect(0, y, W, 60, LTAN)
     fill_rect(0, y, W, 2, DARK)
-    fill_rect(0, y + 48, W, 2, DARK)
+    fill_rect(0, y + 58, W, 2, DARK)
 
-    # Date in LARGE TYPE (scale 3 = 18px per char)
-    date_str = "THURSDAY, NOVEMBER 19, 2026"
-    draw_text_c(date_str, y + 10, DRED, 3)
-
-    # Metadata
-    draw_text("VOL. CXXVIII NO. 44", M + 4, y + 9, GRAY, 1)
-    draw_text("THE HAGUE * D.C. * TOKYO", M + 4, y + 23, GRAY, 1)
-    draw_text("INTERNATIONAL EDITION", M + 4, y + 35, GRAY, 1)
-
-    draw_text_r("FINAL LATE EDITION", y + 9, GRAY, 1, W - M - 4)
-    draw_text_r("PRICE: $3.00 USD", y + 23, GRAY, 1, W - M - 4)
-    draw_text_r("PRINTED GLOBALLY", y + 35, GRAY, 1, W - M - 4)
+    date_str = "THURSDAY 19 NOVEMBER 2026"
+    # Scale 6: 25 * 36 = 900 px width, 42 px tall! (Visibly the largest element)
+    draw_text_c(date_str, y + 9, DRED, 6)
 
 
-def draw_lead_story():
+def draw_three_lead_stories():
     """
-    Lead Story: ICJ Genocide Verdict against Myanmar.
-    Full-width top story with large bold headlines legible at 300px.
+    Tier 1: Three Lead Stories with large headlines and drawn icons.
+      Lead 1: ICJ Myanmar Genocide Ruling (Full Width)
+      Lead 2: Trump, Xi & Putin Shenzhen Trilateral Summit (Left)
+      Lead 3: US Senate Iran War Powers Rejection (Right)
     """
-    y0 = 146
     lw = W - M * 2
-    lh = 276
 
-    fill_rect(M, y0, lw, lh, SBG)
-    fill_rect(M, y0, lw, 4, DRED)
+    # ──── LEAD 1: ICJ MYANMAR RULING ────
+    y1 = 122
+    lh1 = 196
+    fill_rect(M, y1, lw, lh1, SBG)
+    fill_rect(M, y1, lw, 3, DRED)
 
-    # Region tag badge
-    tag = "WORLD COURT: THE HAGUE / MYANMAR"
-    ttw = tw(tag, 2) + 16
-    fill_rect(M + 8, y0 + 10, ttw, 20, NAVY)
-    draw_text(tag, M + 16, y0 + 13, WHITE, 2)
+    tag1 = "WORLD COURT: THE HAGUE / MYANMAR"
+    fill_rect(M + 8, y1 + 8, tw(tag1, 1) + 12, 14, NAVY)
+    draw_text(tag1, M + 14, y1 + 11, WHITE, 1)
 
-    # Justice Scales Icon
-    icon_scales(W - M - 75, y0 + 68, 46)
+    icon_scales(W - M - 60, y1 + 52, 40)
 
-    # Big Headlines (scale 4 = 24px char, bold & legible at 300px)
-    draw_text("ICJ: MYANMAR GUILTY", M + 8, y0 + 38, BLACK, 4)
-    draw_text("OF ROHINGYA GENOCIDE", M + 8, y0 + 74, BLACK, 4)
+    # Scale 4 headlines
+    draw_text("ICJ: MYANMAR GUILTY OF GENOCIDE", M + 8, y1 + 28, BLACK, 4)
+    draw_text("HISTORIC RULING FOR ROHINGYA", M + 8, y1 + 60, BLACK, 4)
 
-    # Subheadline (scale 2)
-    draw_text("HISTORIC 9-6 RULING: FIRST SOVEREIGN STATE CONVICTED BY WORLD COURT", M + 8, y0 + 114, DRED, 2)
+    draw_text("LANDMARK 9-6 DECISION: FIRST STATE EVER CONVICTED OF DIRECT GENOCIDE", M + 8, y1 + 94, DRED, 2)
+    fill_rect(M + 8, y1 + 112, lw - 16, 1, LGRAY)
 
-    # Divider rule
-    fill_rect(M + 8, y0 + 134, lw - 16, 1, LGRAY)
-
-    # Two-column story labels (scale 2, comfortably fitting within columns)
+    # Two column short labels (scale 2, generous breathing room)
     col_w = (lw - 40) // 2
-    c1_x = M + 8
-    c2_x = M + 8 + col_w + 24
+    c1 = M + 8
+    c2 = M + 8 + col_w + 24
 
-    draw_text("• UN COURT FINDS MYANMAR VIOLATED", c1_x, y0 + 144, DARK, 2)
-    draw_text("  1948 GENOCIDE CONVENTION IN 9-6 VOTE", c1_x, y0 + 164, DARK, 2)
-    draw_text("• SYSTEMATIC ATROCITIES IN RAKHINE", c1_x, y0 + 188, DARK, 2)
-    draw_text("  PROVE DIRECT STATE GENOCIDAL INTENT", c1_x, y0 + 208, DARK, 2)
-    draw_text("• DECISION BREAKS 80-YEAR PRECEDENT", c1_x, y0 + 232, DARK, 2)
+    draw_text("• UN COURT FINDS MYANMAR GUILTY", c1, y1 + 120, DARK, 2)
+    draw_text("  OF GENOCIDE IN 9-6 ICJ VOTE", c1, y1 + 138, DARK, 2)
+    draw_text("• MILITARY CLEARANCE IN RAKHINE", c1, y1 + 158, DARK, 2)
+    draw_text("  BREACHED 1948 CONVENTION", c1, y1 + 174, DARK, 2)
 
-    draw_text("• MYANMAR ORDERED TO COMPENSATE", c2_x, y0 + 144, DARK, 2)
-    draw_text("  ROHINGYA SURVIVORS WITHIN 2 YEARS", c2_x, y0 + 164, DARK, 2)
-    draw_text("• JUNTA DEFENSE REJECTED BY JUDGES;", c2_x, y0 + 188, DARK, 2)
-    draw_text("  RIGHTS GROUPS HAIL HISTORIC RULING", c2_x, y0 + 208, DARK, 2)
-    draw_text("• GLOBAL ACCOUNTABILITY BENCHMARK SET", c2_x, y0 + 232, DARK, 2)
+    draw_text("• TRIBUNAL ORDERS COMPENSATION", c2, y1 + 120, DARK, 2)
+    draw_text("  FOR ROHINGYA WITHIN 2 YEARS", c2, y1 + 138, DARK, 2)
+    draw_text("• FIRST TIME A SOVEREIGN STATE", c2, y1 + 158, DARK, 2)
+    draw_text("  HELD DIRECTLY RESPONSIBLE", c2, y1 + 174, DARK, 2)
 
-    # Vertical column separator
-    fill_rect(c1_x + col_w + 11, y0 + 140, 1, 114, LGRAY)
+    fill_rect(c1 + col_w + 11, y1 + 116, 1, 72, LGRAY)
+    fill_rect(M, y1 + lh1, lw, 2, DARK)
 
-    # Bottom border
-    fill_rect(M, y0 + lh, lw, 2, DARK)
-    return y0 + lh + 4
+    # ──── LEAD 2 & 3: MID CARDS (SIDE BY SIDE) ────
+    y2 = y1 + lh1 + 4
+    card_w = (lw - 10) // 2
+    card_h = 236
+
+    # Lead 2 (Left): Trilateral Summit
+    x2 = M
+    fill_rect(x2, y2, card_w, card_h, SBG)
+    fill_rect(x2, y2, card_w, 3, DRED)
+
+    tag2 = "DIPLOMACY: APEC SHENZHEN"
+    fill_rect(x2 + 8, y2 + 8, tw(tag2, 1) + 10, 13, NAVY)
+    draw_text(tag2, x2 + 13, y2 + 10, WHITE, 1)
+
+    icon_summit(x2 + card_w - 48, y2 + 42, 30)
+
+    draw_text("TRUMP, XI & PUTIN", x2 + 8, y2 + 28, BLACK, 3)
+    draw_text("IN HISTORIC SUMMIT", x2 + 8, y2 + 54, BLACK, 3)
+
+    draw_text("LEADERS SIGN JOINT DECLARATION AT APEC", x2 + 8, y2 + 82, DRED, 2)
+    fill_rect(x2 + 8, y2 + 102, card_w - 16, 1, LGRAY)
+
+    draw_text("• HISTORIC 80-MIN TRILATERAL TALKS", x2 + 8, y2 + 114, DARK, 2)
+    draw_text("  AT KYLIN VILLA IN SHENZHEN", x2 + 8, y2 + 134, DARK, 2)
+    draw_text("• JOINT PACT AFFIRMS: NUCLEAR WAR", x2 + 8, y2 + 158, DARK, 2)
+    draw_text("  CANNOT BE WON & NEVER BE FOUGHT", x2 + 8, y2 + 178, DARK, 2)
+    draw_text("• LEADERS DISCUSS ENERGY & UN REFORM", x2 + 8, y2 + 202, DARK, 2)
+
+    # Lead 3 (Right): US Senate Iran War Powers
+    x3 = M + card_w + 10
+    fill_rect(x3, y2, card_w, card_h, SBG)
+    fill_rect(x3, y2, card_w, 3, DRED)
+
+    tag3 = "CONGRESS: WASHINGTON, D.C."
+    fill_rect(x3 + 8, y2 + 8, tw(tag3, 1) + 10, 13, NAVY)
+    draw_text(tag3, x3 + 13, y2 + 10, WHITE, 1)
+
+    icon_capitol(x3 + card_w - 48, y2 + 42, 30)
+
+    draw_text("SENATE REJECTS", x3 + 8, y2 + 28, BLACK, 3)
+    draw_text("IRAN WAR LIMITS", x3 + 8, y2 + 54, BLACK, 3)
+
+    draw_text("51-48 VOTE BACKS PRESIDENTIAL AUTHORITY", x3 + 8, y2 + 82, DRED, 2)
+    fill_rect(x3 + 8, y2 + 102, card_w - 16, 1, LGRAY)
+
+    draw_text("• SENATE DEFEATS WAR POWERS BILL", x3 + 8, y2 + 114, DARK, 2)
+    draw_text("  H.CON.RES. 93 IN 51-48 VOTE", x3 + 8, y2 + 134, DARK, 2)
+    draw_text("• GOP SENATORS COLLINS, MURKOWSKI", x3 + 8, y2 + 158, DARK, 2)
+    draw_text("  AND RAND PAUL BREAK PARTY RANKS", x3 + 8, y2 + 178, DARK, 2)
+    draw_text("• FETTERMAN SOLE DEMOCRAT VOTING NO", x3 + 8, y2 + 202, DARK, 2)
+
+    fill_rect(M, y2 + card_h, lw, 2, DARK)
+    return y2 + card_h + 4
 
 
-def draw_mid_row(y0):
+def draw_section_tagged_grid(y0):
     """
-    Middle Row: Two major international political stories.
-    Left: Trump-Xi-Putin Trilateral Summit.
-    Right: US Senate Iran War Powers Rejection.
+    Tier 2: 6 Labelled items grouped under Section Tags:
+      [WORLD]          Hodeidah Strikes & Houthi Threats
+      [MARKETS]        Anthropic Historic $81B Nasdaq IPO Debut
+      [TECH]           California Subpoenas Nvidia in Chip Probe
+      [SCIENCE]        Voyager 1 Crosses One Light-Day
+      [SPORT/CULTURE]  Grand Theft Auto VI Officially Launches
+      [WORLD]          India Evacuates 100k+ for Cyclone Akvan
+    2 rows x 3 columns.
     """
-    card_w = (W - M * 2 - 12) // 2
-    card_h = 276
+    lw = W - M * 2
+    cw = (lw - 16) // 3
+    ch = 172
 
-    # ──── STORY 2: TRILATERAL SUMMIT ────
+    # ──── ROW 1: WORLD, MARKETS, TECH ────
+    r1_y = y0
+
+    # Item 1: WORLD
     x1 = M
-    fill_rect(x1, y0, card_w, card_h, SBG)
-    fill_rect(x1, y0, card_w, 3, DRED)
+    fill_rect(x1, r1_y, cw, ch, SBG)
+    fill_rect(x1, r1_y, cw, 2, DRED)
+    # Badge (Left)
+    fill_rect(x1 + 6, r1_y + 6, tw("WORLD", 1) + 10, 14, NAVY)
+    draw_text("WORLD", x1 + 11, r1_y + 9, WHITE, 1)
+    # Sub-label (Right-aligned, never overlaps badge)
+    draw_text_r("YEMEN / SAUDI", r1_y + 9, GRAY, 1, x1 + cw - 8)
 
-    tag1 = "DIPLOMACY: APEC / SHENZHEN"
-    fill_rect(x1 + 8, y0 + 8, tw(tag1, 1) + 10, 13, NAVY)
-    draw_text(tag1, x1 + 13, y0 + 11, WHITE, 1)
+    draw_text("COALITION STRIKES", x1 + 6, r1_y + 26, BLACK, 2)
+    draw_text("HODEIDAH PORT", x1 + 6, r1_y + 42, BLACK, 2)
+    draw_text("HOUTHIS THREATEN RIYADH & RED SEA", x1 + 6, r1_y + 58, DRED, 1)
+    fill_rect(x1 + 6, r1_y + 70, cw - 12, 1, LGRAY)
 
-    icon_summit(x1 + card_w - 52, y0 + 44, 32)
+    draw_text("• Saudi jets bomb Red Sea port depots.", x1 + 6, r1_y + 78, DARK, 1)
+    draw_text("• Houthis threaten Riyadh financial hub.", x1 + 6, r1_y + 94, DARK, 1)
+    draw_text("• Airlines warned over Saudi airspace.", x1 + 6, r1_y + 110, DARK, 1)
+    draw_text("• UN sounds alarm on food supply lines.", x1 + 6, r1_y + 126, DARK, 1)
+    draw_text("• GCC condemns cross-border assaults.", x1 + 6, r1_y + 142, DARK, 1)
 
-    draw_text("TRUMP, XI & PUTIN", x1 + 8, y0 + 28, BLACK, 3)
-    draw_text("IN HISTORIC SUMMIT", x1 + 8, y0 + 54, BLACK, 3)
+    # Item 2: MARKETS
+    x2 = M + cw + 8
+    fill_rect(x2, r1_y, cw, ch, SBG)
+    fill_rect(x2, r1_y, cw, 2, DRED)
+    fill_rect(x2 + 6, r1_y + 6, tw("MARKETS", 1) + 10, 14, NAVY)
+    draw_text("MARKETS", x2 + 11, r1_y + 9, WHITE, 1)
+    draw_text_r("WALL STREET / NASDAQ", r1_y + 9, GRAY, 1, x2 + cw - 8)
 
-    draw_text("LEADERS SIGN JOINT DECLARATION AT APEC", x1 + 8, y0 + 84, DRED, 2)
-    fill_rect(x1 + 8, y0 + 104, card_w - 16, 1, LGRAY)
+    draw_text("ANTHROPIC IN $81B IPO", x2 + 6, r1_y + 26, BLACK, 2)
+    draw_text("HISTORIC NASDAQ DEBUT", x2 + 6, r1_y + 42, BLACK, 2)
+    draw_text("TICKER ANT SURGES 34% ON FIRST DAY", x2 + 6, r1_y + 58, DRED, 1)
+    fill_rect(x2 + 6, r1_y + 70, cw - 12, 1, LGRAY)
 
-    draw_text("• UNPRECEDENTED 80-MIN TRILATERAL", x1 + 8, y0 + 114, DARK, 2)
-    draw_text("  MEETING AT KYLIN VILLA IN SHENZHEN", x1 + 8, y0 + 134, DARK, 2)
-    draw_text("• SIGNED JOINT STATEMENT REAFFIRMS:", x1 + 8, y0 + 158, DARK, 2)
-    draw_text("  NUCLEAR WAR CANNOT BE WON OR FOUGHT", x1 + 8, y0 + 178, DARK, 2)
-    draw_text("• ACCORD TOUCHES OIL FLOWS & UN REFORM", x1 + 8, y0 + 202, DARK, 2)
-    draw_text("• ALLIES CONCERNED ON GREAT-POWER PACT", x1 + 8, y0 + 226, DARK, 2)
+    draw_text("• Maker of Claude priced above range at $83.", x2 + 6, r1_y + 78, DARK, 1)
+    draw_text("• Stock opened at $111.50, up 34%.", x2 + 6, r1_y + 94, DARK, 1)
+    draw_text("• Largest US public offering in history.", x2 + 6, r1_y + 110, DARK, 1)
+    draw_text("• First-day close gives $1.3T valuation.", x2 + 6, r1_y + 126, DARK, 1)
+    draw_text("• AI sector rallies broadly on debut.", x2 + 6, r1_y + 142, DARK, 1)
 
-    # ──── STORY 3: SENATE WAR POWERS ────
-    x2 = M + card_w + 12
-    fill_rect(x2, y0, card_w, card_h, SBG)
-    fill_rect(x2, y0, card_w, 3, DRED)
+    # Item 3: TECH
+    x3 = M + (cw + 8) * 2
+    fill_rect(x3, r1_y, cw, ch, SBG)
+    fill_rect(x3, r1_y, cw, 2, DRED)
+    fill_rect(x3 + 6, r1_y + 6, tw("TECH", 1) + 10, 14, NAVY)
+    draw_text("TECH", x3 + 11, r1_y + 9, WHITE, 1)
+    draw_text_r("SILICON VALLEY / DOJ", r1_y + 9, GRAY, 1, x3 + cw - 8)
 
-    tag2 = "CONGRESS: WASHINGTON, D.C."
-    fill_rect(x2 + 8, y0 + 8, tw(tag2, 1) + 10, 13, NAVY)
-    draw_text(tag2, x2 + 13, y0 + 11, WHITE, 1)
+    draw_text("CALIFORNIA SUBPOENAS", x3 + 6, r1_y + 26, BLACK, 2)
+    draw_text("NVIDIA IN CHIP PROBE", x3 + 6, r1_y + 42, BLACK, 2)
+    draw_text("AG BONTA INVESTIGATES CHINA LEAKS", x3 + 6, r1_y + 58, DRED, 1)
+    fill_rect(x3 + 6, r1_y + 70, cw - 12, 1, LGRAY)
 
-    icon_capitol(x2 + card_w - 52, y0 + 44, 32)
+    draw_text("• State DOJ serves subpoena on chipmaker.", x3 + 6, r1_y + 78, DARK, 1)
+    draw_text("• Probe follows resignation of Jensen Huang.", x3 + 6, r1_y + 94, DARK, 1)
+    draw_text("• Investigators examine confidential leaks.", x3 + 6, r1_y + 110, DARK, 1)
+    draw_text("• Scrutiny centers on China export controls.", x3 + 6, r1_y + 126, DARK, 1)
+    draw_text("• AG evaluates potential investor fraud.", x3 + 6, r1_y + 142, DARK, 1)
 
-    draw_text("SENATE REJECTS", x2 + 8, y0 + 28, BLACK, 3)
-    draw_text("IRAN WAR LIMITS", x2 + 8, y0 + 54, BLACK, 3)
+    fill_rect(M, r1_y + ch, lw, 1, DARK)
 
-    draw_text("51-48 VOTE BACKS PRESIDENTIAL AUTHORITY", x2 + 8, y0 + 84, DRED, 2)
-    fill_rect(x2 + 8, y0 + 104, card_w - 16, 1, LGRAY)
+    # ──── ROW 2: SCIENCE, SPORT/CULTURE, WORLD/ENVIRONMENT ────
+    r2_y = r1_y + ch + 4
+    ch2 = 172
 
-    draw_text("• HOUSE WAR POWERS MEASURE DEFEATED", x2 + 8, y0 + 114, DARK, 2)
-    draw_text("  IN KEY POST-MIDTERMS TEST VOTE", x2 + 8, y0 + 134, DARK, 2)
-    draw_text("• GOP SENATORS COLLINS, MURKOWSKI", x2 + 8, y0 + 158, DARK, 2)
-    draw_text("  AND RAND PAUL BREAK PARTY RANKS", x2 + 8, y0 + 178, DARK, 2)
-    draw_text("• FETTERMAN SOLE DEMOCRAT DISSENTING", x2 + 8, y0 + 202, DARK, 2)
-    draw_text("• PENTAGON SAYS WAR SPENDING TOPS $48B", x2 + 8, y0 + 226, DARK, 2)
+    # Item 4: SCIENCE
+    fill_rect(x1, r2_y, cw, ch2, SBG)
+    fill_rect(x1, r2_y, cw, 2, DRED)
+    fill_rect(x1 + 6, r2_y + 6, tw("SCIENCE", 1) + 10, 14, NAVY)
+    draw_text("SCIENCE", x1 + 11, r2_y + 9, WHITE, 1)
+    draw_text_r("NASA / DEEP SPACE", r2_y + 9, GRAY, 1, x1 + cw - 8)
 
-    fill_rect(M, y0 + card_h, W - M * 2, 2, DARK)
-    return y0 + card_h + 4
+    draw_text("VOYAGER 1 CROSSES", x1 + 6, r2_y + 26, BLACK, 2)
+    draw_text("ONE LIGHT-DAY MARK", x1 + 6, r2_y + 42, BLACK, 2)
+    draw_text("16.1 BILLION MILES FROM EARTH", x1 + 6, r2_y + 58, DRED, 1)
+    fill_rect(x1 + 6, r2_y + 70, cw - 12, 1, LGRAY)
+
+    draw_text("• Radio signals take full 24 hours each way.", x1 + 6, r2_y + 78, DARK, 1)
+    draw_text("• Craft reached 173 Astronomical Units out.", x1 + 6, r2_y + 94, DARK, 1)
+    draw_text("• 49-year interstellar voyage since 1977.", x1 + 6, r2_y + 110, DARK, 1)
+    draw_text("• Traveling at 38,000 mph into the void.", x1 + 6, r2_y + 126, DARK, 1)
+    draw_text("• Farthest human-made explorer in history.", x1 + 6, r2_y + 142, DARK, 1)
+
+    # Item 5: SPORT/CULTURE
+    fill_rect(x2, r2_y, cw, ch2, SBG)
+    fill_rect(x2, r2_y, cw, 2, DRED)
+    fill_rect(x2 + 6, r2_y + 6, tw("SPORT/CULTURE", 1) + 10, 14, NAVY)
+    draw_text("SPORT/CULTURE", x2 + 11, r2_y + 9, WHITE, 1)
+    draw_text_r("GAMING / MEDIA", r2_y + 9, GRAY, 1, x2 + cw - 8)
+
+    draw_text("GRAND THEFT AUTO VI", x2 + 6, r2_y + 26, BLACK, 2)
+    draw_text("OFFICIALLY LAUNCHES", x2 + 6, r2_y + 42, BLACK, 2)
+    draw_text("ROCKSTAR SHIPS ON PS5 & XBOX TODAY", x2 + 6, r2_y + 58, DRED, 1)
+    fill_rect(x2 + 6, r2_y + 70, cw - 12, 1, LGRAY)
+
+    draw_text("• Official global launch Nov 19 confirmed.", x2 + 6, r2_y + 78, DARK, 1)
+    draw_text("• Millions queue for midnight downloads.", x2 + 6, r2_y + 94, DARK, 1)
+    draw_text("• Setting in fictional state of Leonida.", x2 + 6, r2_y + 110, DARK, 1)
+    draw_text("• Projected to break entertainment records.", x2 + 6, r2_y + 126, DARK, 1)
+    draw_text("• Retailers report sold-out console bundles.", x2 + 6, r2_y + 142, DARK, 1)
+
+    # Item 6: WORLD / ENVIRONMENT
+    fill_rect(x3, r2_y, cw, ch2, SBG)
+    fill_rect(x3, r2_y, cw, 2, DRED)
+    fill_rect(x3 + 6, r2_y + 6, tw("WORLD", 1) + 10, 14, NAVY)
+    draw_text("WORLD", x3 + 11, r2_y + 9, WHITE, 1)
+    draw_text_r("INDIA / DISASTER", r2_y + 9, GRAY, 1, x3 + cw - 8)
+
+    draw_text("INDIA ON RED ALERT", x3 + 6, r2_y + 26, BLACK, 2)
+    draw_text("FOR CYCLONE AKVAN", x3 + 6, r2_y + 42, BLACK, 2)
+    draw_text("100,000+ EVACUATED IN ODISHA", x3 + 6, r2_y + 58, DRED, 1)
+    fill_rect(x3 + 6, r2_y + 70, cw - 12, 1, LGRAY)
+
+    draw_text("• Severe Cyclonic Storm Akvan bears down.", x3 + 6, r2_y + 78, DARK, 1)
+    draw_text("• Gale winds of 110 km/h forecast near coast.", x3 + 6, r2_y + 94, DARK, 1)
+    draw_text("• Mass shelters opened in Odisha & Andhra.", x3 + 6, r2_y + 110, DARK, 1)
+    draw_text("• Dozens of train routes cancelled by rail.", x3 + 6, r2_y + 126, DARK, 1)
+    draw_text("• Third major cyclone in region this month.", x3 + 6, r2_y + 142, DARK, 1)
+
+    fill_rect(M, r2_y + ch2, lw, 2, DARK)
+    return r2_y + ch2 + 4
 
 
-def draw_bot_row(y0):
+def draw_footer_strip(y0):
     """
-    Bottom Row: Three stories across different fields.
-    Left: Middle East strikes (Military/Geopolitics).
-    Center: IAEA Yongbyon expansion (Nuclear/Asia).
-    Right: Voyager 1 one light-day milestone (Space/Science).
+    Bottom Wire Banner, Global Data Ticker, Legal Imprint.
+    Includes verified dispatches:
+      - IAEA reports North Korea Yongbyon enrichment expansion
+      - EU delays methane rules to 2029
     """
-    card_w = (W - M * 2 - 20) // 3
-    card_h = 230
-
-    # ──── STORY 4: HODEIDAH STRIKES ────
-    x1 = M
-    fill_rect(x1, y0, card_w, card_h, SBG)
-    fill_rect(x1, y0, card_w, 3, DRED)
-
-    tag1 = "MIDDLE EAST | YEMEN"
-    fill_rect(x1 + 6, y0 + 6, tw(tag1, 1) + 8, 12, NAVY)
-    draw_text(tag1, x1 + 10, y0 + 8, WHITE, 1)
-
-    icon_missile(x1 + card_w - 38, y0 + 38, 24)
-
-    draw_text("COALITION HITS", x1 + 6, y0 + 24, BLACK, 2)
-    draw_text("HODEIDAH PORT", x1 + 6, y0 + 42, BLACK, 2)
-    draw_text("HOUTHIS THREATEN RIYADH & JEDDAH", x1 + 6, y0 + 60, DRED, 1)
-    fill_rect(x1 + 6, y0 + 72, card_w - 12, 1, LGRAY)
-
-    draw_text("• Saudi jets strike Red Sea port of", x1 + 6, y0 + 80, DARK, 1)
-    draw_text("  Hodeidah and missile workshops.", x1 + 6, y0 + 94, DARK, 1)
-    draw_text("• Houthis warn Saudi commercial", x1 + 6, y0 + 110, DARK, 1)
-    draw_text("  airspace is unsafe for airlines.", x1 + 6, y0 + 124, DARK, 1)
-    draw_text("• Threats made on Riyadh financial", x1 + 6, y0 + 140, DARK, 1)
-    draw_text("  district and oil power plants.", x1 + 6, y0 + 154, DARK, 1)
-    draw_text("• UN sounds alarm on food supply.", x1 + 6, y0 + 170, DARK, 1)
-    draw_text("• GCC condemns cross-border attacks.", x1 + 6, y0 + 184, DARK, 1)
-
-    # ──── STORY 5: IAEA NORTH KOREA ────
-    x2 = M + card_w + 10
-    fill_rect(x2, y0, card_w, card_h, SBG)
-    fill_rect(x2, y0, card_w, 3, DRED)
-
-    tag2 = "SECURITY | NORTH KOREA"
-    fill_rect(x2 + 6, y0 + 6, tw(tag2, 1) + 8, 12, NAVY)
-    draw_text(tag2, x2 + 10, y0 + 8, WHITE, 1)
-
-    icon_atom(x2 + card_w - 38, y0 + 38, 24)
-
-    draw_text("IAEA: N. KOREA", x2 + 6, y0 + 24, BLACK, 2)
-    draw_text("EXPANDS YONGBYON", x2 + 6, y0 + 42, BLACK, 2)
-    draw_text("URANIUM ENRICHMENT EXTENSION", x2 + 6, y0 + 60, DRED, 1)
-    fill_rect(x2 + 6, y0 + 72, card_w - 12, 1, LGRAY)
-
-    draw_text("• IAEA Chief Grossi reports new", x2 + 6, y0 + 80, DARK, 1)
-    draw_text("  extension at Yongbyon site.", x2 + 6, y0 + 94, DARK, 1)
-    draw_text("• Centrifuge facility structure", x2 + 6, y0 + 110, DARK, 1)
-    draw_text("  externally completed in Oct.", x2 + 6, y0 + 124, DARK, 1)
-    draw_text("• 5-megawatt reactor operates in", x2 + 6, y0 + 140, DARK, 1)
-    draw_text("  seventh cycle for plutonium.", x2 + 6, y0 + 154, DARK, 1)
-    draw_text("• Light-water reactor active;", x2 + 6, y0 + 170, DARK, 1)
-    draw_text("  UN Security resolutions breached.", x2 + 6, y0 + 184, DARK, 1)
-
-    # ──── STORY 6: VOYAGER 1 ────
-    x3 = M + (card_w + 10) * 2
-    fill_rect(x3, y0, card_w, card_h, SBG)
-    fill_rect(x3, y0, card_w, 3, DRED)
-
-    tag3 = "SCIENCE | DEEP SPACE"
-    fill_rect(x3 + 6, y0 + 6, tw(tag3, 1) + 8, 12, NAVY)
-    draw_text(tag3, x3 + 10, y0 + 8, WHITE, 1)
-
-    icon_voyager(x3 + card_w - 38, y0 + 38, 24)
-
-    draw_text("VOYAGER 1 PASSES", x3 + 6, y0 + 24, BLACK, 2)
-    draw_text("ONE LIGHT-DAY", x3 + 6, y0 + 42, BLACK, 2)
-    draw_text("16.1 BILLION MILES FROM EARTH", x3 + 6, y0 + 60, DRED, 1)
-    fill_rect(x3 + 6, y0 + 72, card_w - 12, 1, LGRAY)
-
-    draw_text("• NASA confirms Voyager 1 crossed", x3 + 6, y0 + 80, DARK, 1)
-    draw_text("  historic one light-day mark.", x3 + 6, y0 + 94, DARK, 1)
-    draw_text("• Distance reaches 25.9B km, or", x3 + 6, y0 + 110, DARK, 1)
-    draw_text("  173 Astronomical Units away.", x3 + 6, y0 + 124, DARK, 1)
-    draw_text("• Radio signals require exactly", x3 + 6, y0 + 140, DARK, 1)
-    draw_text("  24 hours each direction.", x3 + 6, y0 + 154, DARK, 1)
-    draw_text("• 49-year journey since 1977;", x3 + 6, y0 + 170, DARK, 1)
-    draw_text("  farthest human-made explorer.", x3 + 6, y0 + 184, DARK, 1)
-
-    fill_rect(M, y0 + card_h, W - M * 2, 2, DARK)
-    return y0 + card_h + 4
-
-
-def draw_footer(y0):
-    """Bottom Gazette information panels, markets, weather, and legal imprint."""
-    # Motto banner
     fill_rect(0, y0, W, 22, NAVY)
-    draw_text_c("* INDEPENDENT * IMPARTIAL * OBJECTIVE GLOBAL RECORD *", y0 + 4, GOLD, 2)
-    y0 += 26
+    wire = "* WIRE: IAEA SAYS N. KOREA EXPANDING YONGBYON ENRICHMENT * EU DELAYS METHANE RULES TO 2029 *"
+    draw_text_c(wire, y0 + 6, GOLD, 1)
+    y0 += 24
 
-    # 3 Summary panels
-    bw = (W - M * 2 - 16) // 3
-    bh = 46
+    fill_rect(0, y0, W, 28, LTAN)
+    fill_rect(0, y0, W, 1, DARK)
+    fill_rect(0, y0 + 27, W, 1, DARK)
 
-    # Panel 1: World Weather
-    b1_x = M
-    fill_rect(b1_x, y0, bw, bh, SBG)
-    fill_rect(b1_x, y0, bw, 2, DBLUE)
-    draw_text("WORLD WEATHER", b1_x + 6, y0 + 4, NAVY, 2)
-    draw_text("NEW YORK: 48F CLOUDY  |  LONDON: 9C RAIN", b1_x + 6, y0 + 20, DARK, 1)
-    draw_text("TOKYO: 14C SUNNY      |  GENEVA: 6C CLEAR", b1_x + 6, y0 + 32, DARK, 1)
+    draw_text("MARKETS: DOW 42,318 (+0.4%)  S&P 5,891 (+0.3%)  BRENT $78.42  GOLD $2,640", M + 4, y0 + 5, DARK, 1)
+    draw_text("WEATHER: NYC 48F CLOUDY | LONDON 9C RAIN | TOKYO 14C CLEAR | DELHI 26C HAZE", M + 4, y0 + 16, DARK, 1)
+    y0 += 30
 
-    # Panel 2: Markets
-    b2_x = M + bw + 8
-    fill_rect(b2_x, y0, bw, bh, SBG)
-    fill_rect(b2_x, y0, bw, 2, DBLUE)
-    draw_text("FINANCIAL MARKETS", b2_x + 6, y0 + 4, NAVY, 2)
-    draw_text("DOW JONES: 42,318 (+0.4%) | S&P 500: 5,891", b2_x + 6, y0 + 20, DARK, 1)
-    draw_text("BRENT CRUDE: $78.42/BBL    | GOLD: $2,640", b2_x + 6, y0 + 32, DARK, 1)
-
-    # Panel 3: Inside Today
-    b3_x = M + (bw + 8) * 2
-    fill_rect(b3_x, y0, bw, bh, SBG)
-    fill_rect(b3_x, y0, bw, 2, DBLUE)
-    draw_text("INSIDE THIS ISSUE", b3_x + 6, y0 + 4, NAVY, 2)
-    draw_text("APEC SUMMIT PAPERS...A2-A5 | ICJ FULL TEXT...A6-A8", b3_x + 6, y0 + 20, DARK, 1)
-    draw_text("MIDTERM ANALYSIS....A9-A11 | SCIENCE & TECH....B1-B4", b3_x + 6, y0 + 32, DARK, 1)
-
-    y0 += bh + 6
-
-    # Imprint
-    fill_rect(0, y0, W, 2, DARK)
-    draw_text_c("COPYRIGHT 2026 THE WORLD GAZETTE PUBLISHING GROUP. ALL RIGHTS RESERVED.", y0 + 4, GRAY, 1)
-
-    # Bottom edge rule
+    draw_text_c("COPYRIGHT 2026 THE WORLD GAZETTE PUBLISHING CO. * 1024x1024 EDITION * ALL RIGHTS RESERVED", y0 + 2, GRAY, 1)
     fill_rect(0, H - 4, W, 4, NAVY)
 
 
 # ───────────────────────── PNG ENCODER ──────────────────────────────────
 
 def encode_png(width, height, pixel_data):
-    """
-    Pure Python PNG encoder (IHDR, IDAT with zlib, IEND).
-    Standard library only.
-    """
+    """Pure stdlib PNG encoder (IHDR, IDAT with Up filter, IEND)."""
     def chunk(tag: bytes, data: bytes) -> bytes:
         c = tag + data
         crc = struct.pack(">I", zlib.crc32(c) & 0xFFFFFFFF)
@@ -689,16 +637,40 @@ def encode_png(width, height, pixel_data):
     return sig + ihdr + idat + iend
 
 
+def create_downscaled_copy(src_pixels, src_w, src_h, dst_w, dst_h):
+    """Box-average downscale for visual testing at 300 px."""
+    dst = [(0, 0, 0)] * (dst_w * dst_h)
+    x_ratio = src_w / dst_w
+    y_ratio = src_h / dst_h
+
+    for dy in range(dst_h):
+        sy_start = int(dy * y_ratio)
+        sy_end = int((dy + 1) * y_ratio)
+        for dx in range(dst_w):
+            sx_start = int(dx * x_ratio)
+            sx_end = int((dx + 1) * x_ratio)
+
+            r_sum = g_sum = b_sum = count = 0
+            for sy in range(sy_start, min(src_h, sy_end)):
+                for sx in range(sx_start, min(src_w, sx_end)):
+                    r, g, b = src_pixels[sy * src_w + sx]
+                    r_sum += r; g_sum += g; b_sum += b
+                    count += 1
+            if count > 0:
+                dst[dy * dst_w + dx] = (r_sum // count, g_sum // count, b_sum // count)
+    return dst
+
+
 # ───────────────────────── MAIN EXECUTION ───────────────────────────────
 
 def main():
     draw_masthead()
-    draw_date_bar()
-    y = draw_lead_story()
-    y = draw_mid_row(y)
-    y = draw_bot_row(y)
-    draw_footer(y)
+    draw_date_banner()
+    y = draw_three_lead_stories()
+    y = draw_section_tagged_grid(y)
+    draw_footer_strip(y)
 
+    # 1. Encode & write primary 1024x1024 PNG
     png_bytes = encode_png(W, H, pixels)
     with open(OUT_PATH, 'wb') as f:
         f.write(png_bytes)
@@ -706,6 +678,13 @@ def main():
     size_kb = len(png_bytes) / 1024
     print(f"Generated {OUT_PATH}: {size_kb:.1f} KiB ({W}x{H})")
     assert size_kb < 1024, f"PNG exceeds 1 MiB limit: {size_kb:.1f} KiB"
+
+    # 2. Encode & write 300x300 downscaled copy to verify legibility
+    down_pixels = create_downscaled_copy(pixels, W, H, 300, 300)
+    png_300 = encode_png(300, 300, down_pixels)
+    with open(OUT_300_PATH, 'wb') as f:
+        f.write(png_300)
+    print(f"Generated {OUT_300_PATH}: {len(png_300)/1024:.1f} KiB (300x300)")
 
 
 if __name__ == "__main__":
